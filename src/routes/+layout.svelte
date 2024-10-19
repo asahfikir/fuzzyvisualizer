@@ -42,7 +42,7 @@
       <svelte:fragment slot="trail">
         <a
           class="btn btn-sm variant-ghost-surface"
-          href="https://github.com/asahfikir"
+          href="https://github.com/asahfikir/fuzzyvisualizer"
           target="_blank"
           rel="noreferrer"
         >

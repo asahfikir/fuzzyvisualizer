@@ -2,12 +2,41 @@
   import { fly } from "svelte/transition";
   import { quintOut } from "svelte/easing";
   import { onMount } from "svelte";
+  import {
+    Chart,
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    Title,
+    CategoryScale,
+  } from "chart.js";
+
+  Chart.register(
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    Title,
+    CategoryScale,
+  );
+
+  let ageChartCanvas;
+  let bmiChartCanvas;
+  let sportChartCanvas;
+  let ageChart, bmiChart, sportChart;
+
+  // Sample data to populate the chart later
+  let ageData = [0, 0, 0];
+  let bmiData = [0, 0];
+  let sportData = [0];
 
   let age = 37;
   let height = 165;
   let weight = 85;
   let sportFrequency = 0;
   let bmi = 0.0;
+  let chart;
 
   // Variables to hold the fuzzy set membership values
   let muda = 0.0,
@@ -74,6 +103,9 @@
     } else {
       strokeChance = 0; // No rules were applicable
     }
+
+    // Let's update the chart
+    updateCharts();
   }
 
   // Fuzzy calculation methods
@@ -92,55 +124,116 @@
 
   let ctx;
 
-  onMount(() => {
-    const config = {
+  const config = {
+    type: "line",
+    data: {
+      labels: ["Muda", "Dewasa", "Tua"], // X-axis labels
+      datasets: [
+        {
+          label: "Age Membership",
+          backgroundColor: "rgba(75,192,192,0.4)",
+          borderColor: "rgba(75,192,192,1)",
+          data: [0, 0, 0], // Placeholder data
+          fill: true,
+        },
+        {
+          label: "BMI Membership",
+          backgroundColor: "rgba(153,102,255,0.4)",
+          borderColor: "rgba(153,102,255,1)",
+          data: [0, 0], // Placeholder data
+          // fill: false,
+        },
+        {
+          label: "Sport Frequency Membership",
+          backgroundColor: "rgba(255,159,64,0.4)",
+          borderColor: "rgba(255,159,64,1)",
+          data: [0], // Placeholder data
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: "Fuzzy Set Membership Visualization",
+        },
+      },
+    },
+  };
+  // Handle chart updates after form submission
+  function updateCharts() {
+    ageChart.data.datasets[0].data = [muda, dewasa, tua];
+    ageChart.update();
+
+    bmiChart.data.datasets[0].data = [bmiNormal, bmiGemuk];
+    bmiChart.update();
+
+    sportChart.data.datasets[0].data = [sportSering];
+    sportChart.update();
+  }
+
+  function createChart(chartCanvas, labels, data, chartLabel, backgroundColor) {
+    const ctx = chartCanvas.getContext("2d");
+    if (!ctx) {
+      console.error("Failed to acquire 2D context from canvas");
+      return;
+    }
+
+    return new Chart(ctx, {
       type: "line",
       data: {
-        labels: ["Muda", "Dewasa", "Tua"], // X-axis labels
+        labels: labels,
         datasets: [
           {
-            label: "Age Membership",
-            backgroundColor: "rgba(75,192,192,0.4)",
-            borderColor: "rgba(75,192,192,1)",
-            data: [0, 0, 0], // Placeholder data
-            fill: false,
-          },
-          {
-            label: "BMI Membership",
-            backgroundColor: "rgba(153,102,255,0.4)",
-            borderColor: "rgba(153,102,255,1)",
-            data: [0, 0], // Placeholder data
-            fill: false,
-          },
-          {
-            label: "Sport Frequency Membership",
-            backgroundColor: "rgba(255,159,64,0.4)",
-            borderColor: "rgba(255,159,64,1)",
-            data: [0], // Placeholder data
-            fill: false,
+            label: chartLabel,
+            data: data,
+            backgroundColor: backgroundColor,
+            borderWidth: 1,
           },
         ],
       },
       options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: "Fuzzy Set Membership Visualization",
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 1,
           },
         },
       },
-    };
-
-    // chart = new Chart(ctx, config);
-  });
-
-  function updateChart(ageData, bmiData, sportData) {
-    // chart.data.datasets[0].data = ageData;
-    // chart.data.datasets[1].data = bmiData;
-    // chart.data.datasets[2].data = [sportData];
-    // chart.update();
+    });
   }
+
+  onMount(() => {
+    // Setup canvas
+    // Chart for Age
+    ageChart = createChart(
+      ageChartCanvas,
+      ["Muda", "Dewasa", "Tua"],
+      ageData,
+      "Age Fuzzy Set",
+      ["rgba(255, 99, 132, 0.2)"],
+    );
+
+    // Chart for BMI
+    bmiChart = createChart(
+      bmiChartCanvas,
+      ["Normal", "Gemuk"],
+      bmiData,
+      "BMI Fuzzy Set",
+      ["rgba(54, 162, 235, 0.2)"],
+    );
+
+    // Chart for Sport Frequency
+    sportChart = createChart(
+      sportChartCanvas,
+      ["Sering"],
+      sportData,
+      "Sport Fuzzy Set",
+      ["rgba(75, 192, 192, 0.2)"],
+    );
+  });
 </script>
 
 <div
@@ -200,6 +293,29 @@
 
       <button type="submit" class="btn btn-lg variant-filled">Next</button>
     </form>
+    <hr />
+    <div class="card p-5 mt-5 flex gap-x-5">
+      <!-- Canvas for charts -->
+      <div class="dark:bg-slate-300 dark:text-slate-700 card p-5">
+        <h3>Age Fuzzy Set</h3>
+        <canvas
+          bind:this={ageChartCanvas}
+          width="400"
+          height="200"
+          class="dark:text-gray-700"
+        ></canvas>
+      </div>
+
+      <div class="dark:bg-slate-300 dark:text-slate-700 card p-5">
+        <h3>BMI Fuzzy Set</h3>
+        <canvas bind:this={bmiChartCanvas} width="400" height="200"></canvas>
+      </div>
+
+      <div class="dark:bg-slate-300 dark:text-slate-700 card p-5">
+        <h3>Sport Frequency Fuzzy Set</h3>
+        <canvas bind:this={sportChartCanvas} width="400" height="200"></canvas>
+      </div>
+    </div>
   </div>
   <!-- Result Card -->
   {#if bmi}
@@ -329,8 +445,7 @@
           >Predicted Stroke Chance</span
         >
       </h1>
-      <h2>Predicted Stroke Chance</h2>
-      <p><strong>Stroke Chance:</strong> {strokeChance}%</p>
+      <p class="text-5xl"><strong>Stroke Chance:</strong> {strokeChance}%</p>
     </div>
   {/if}
 </div>

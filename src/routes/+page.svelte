@@ -10,16 +10,16 @@
     LinearScale,
     Title,
     CategoryScale,
-  } from "chart.js";
+  } from "chart.js/auto";
 
-  Chart.register(
-    LineController,
-    LineElement,
-    PointElement,
-    LinearScale,
-    Title,
-    CategoryScale,
-  );
+  // Chart.register(
+  //   LineController,
+  //   LineElement,
+  //   PointElement,
+  //   LinearScale,
+  //   Title,
+  //   CategoryScale,
+  // );
 
   let ageChartCanvas;
   let bmiChartCanvas;
@@ -125,7 +125,7 @@
   let ctx;
 
   const config = {
-    type: "line",
+    type: "bar",
     data: {
       labels: ["Muda", "Dewasa", "Tua"], // X-axis labels
       datasets: [
@@ -182,7 +182,7 @@
     }
 
     return new Chart(ctx, {
-      type: "line",
+      type: "bar",
       data: {
         labels: labels,
         datasets: [
@@ -212,8 +212,12 @@
       ageChartCanvas,
       ["Muda", "Dewasa", "Tua"],
       ageData,
-      "Age Fuzzy Set",
-      ["rgba(255, 99, 132, 0.2)"],
+      "Umur",
+      [
+        "rgba(96, 163, 188, 0.9)",
+        "rgba(60, 99, 130, 0.9)",
+        "rgba(255, 99, 132, 0.9)",
+      ],
     );
 
     // Chart for BMI
@@ -221,8 +225,8 @@
       bmiChartCanvas,
       ["Normal", "Gemuk"],
       bmiData,
-      "BMI Fuzzy Set",
-      ["rgba(54, 162, 235, 0.2)"],
+      "BMI",
+      ["rgba(12, 36, 97, 0.9)"],
     );
 
     // Chart for Sport Frequency
@@ -230,7 +234,7 @@
       sportChartCanvas,
       ["Sering"],
       sportData,
-      "Sport Fuzzy Set",
+      "Sport Frequency",
       ["rgba(75, 192, 192, 0.2)"],
     );
   });

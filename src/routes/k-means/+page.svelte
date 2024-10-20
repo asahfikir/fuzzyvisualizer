@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import ClusterChart from "../../components/kmeanschart.svelte";
 
   let data = [
     { id: 1, age: 41, income: 19 },
@@ -18,6 +19,7 @@
   let iterations = []; // Store results of each iteration
   let iteration = 0;
   let hasConverged = false;
+  let clustersData = []; // Holds the cluster assignment of data points
 
   // Function to initialize random centroids
   function initCentroids() {
@@ -57,12 +59,13 @@
 
     // Save the current iteration result before returning it
     iterations.push({
-      iteration: iteration + 1,
+      iteration: iteration,
       data: resultData.map((r) => ({ ...r })),
     });
 
     // This is a bit of an ugly hack, but svelte need to know if something changes
     iterations = iterations;
+    clustersData = [...resultData];
 
     return resultData;
   }
@@ -115,6 +118,26 @@
       hasConverged = true;
       return;
     }
+
+    const resultData = data.map((d) => {
+      let distances = centroids.map((c) => euclideanDistance(d, c));
+      let minDist = Math.min(...distances);
+      let chosenCluster = `C${distances.indexOf(minDist) + 1}`;
+      return {
+        ...d,
+        distanceToC1: distances[0],
+        distanceToC2: distances[1],
+        distanceToC3: distances[2],
+        chosenCluster,
+      };
+    });
+
+    // iterations.push({
+    //   iteration: iteration + 1,
+    //   data: resultData.map((r) => ({ ...r })),
+    // });
+
+    // if (iteration < 1) iterations = iterations;
 
     // Recalculate centroids for the next iteration
     recalculateCentroids();
@@ -214,6 +237,9 @@
   {#if hasConverged}
     <p>The clustering has converged after {iteration} iterations.</p>
   {/if}
+
+  <!-- Pass the cluster data and centroids to the chart component -->
+  <ClusterChart {clustersData} {centroids} />
 </section>
 
 <style>

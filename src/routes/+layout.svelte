@@ -1,6 +1,7 @@
 <script lang="ts">
   import "../app.postcss";
   import { AppShell, AppBar } from "@skeletonlabs/skeleton";
+  import "@fortawesome/fontawesome-free/css/all.min.css";
 
   // Highlight JS
   import hljs from "highlight.js/lib/core";
@@ -36,8 +37,11 @@
     <!-- App Bar -->
     <AppBar>
       <svelte:fragment slot="lead">
-        <strong class="text-xl uppercase">Fuzzy Logic Example Visualizer</strong
-        >
+        <a href="/">
+          <strong class="text-xl uppercase">
+            Kumpulan Tugas S2 UIGM - Rijalul Fikri [2024171004]
+          </strong>
+        </a>
       </svelte:fragment>
       <svelte:fragment slot="trail">
         <a

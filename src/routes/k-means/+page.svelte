@@ -61,6 +61,7 @@
     iterations.push({
       iteration: iteration,
       data: resultData.map((r) => ({ ...r })),
+      centroids,
     });
 
     // This is a bit of an ugly hack, but svelte need to know if something changes
@@ -143,6 +144,14 @@
     recalculateCentroids();
   }
 
+  // Helper to get smallest distance
+  const isSmallestDistance = (curRow, curDistance) => {
+    return (
+      Math.min(curRow.distanceToC1, curRow.distanceToC2, curRow.distanceToC3) ==
+      curDistance
+    );
+  };
+
   onMount(() => {
     initCentroids();
   });
@@ -196,7 +205,12 @@
   <!-- Step 2: Display Iterations -->
   {#each iterations as iteration}
     <div class="border-t border-teal-100 py-5">
-      <h2 class="h2 text-xl mb-3">Iteration {iteration.iteration}</h2>
+      <h2 class="h2 text-xl mb-3">
+        Iteration {iteration.iteration} - C1({iteration.centroids[0].age},
+        {iteration.centroids[0].income}) - C2({iteration.centroids[1].age},
+        {iteration.centroids[1].income}) - C3({iteration.centroids[2].age},
+        {iteration.centroids[2].income})
+      </h2>
       <table class="table table-hover table-compact">
         <thead>
           <tr>
@@ -215,9 +229,15 @@
               <td>{r.id}</td>
               <td>{r.age}</td>
               <td>{r.income}</td>
-              <td>{r.distanceToC1.toFixed(2)}</td>
-              <td>{r.distanceToC2.toFixed(2)}</td>
-              <td>{r.distanceToC3.toFixed(2)}</td>
+              <td class:smallest={isSmallestDistance(r, r.distanceToC1)}>
+                {r.distanceToC1.toFixed(2)}
+              </td>
+              <td class:smallest={isSmallestDistance(r, r.distanceToC2)}>
+                {r.distanceToC2.toFixed(2)}
+              </td>
+              <td class:smallest={isSmallestDistance(r, r.distanceToC3)}>
+                {r.distanceToC3.toFixed(2)}
+              </td>
               <td>{r.chosenCluster}</td>
             </tr>
           {/each}
@@ -243,14 +263,8 @@
 </section>
 
 <style>
-  /* table {
-    width: 100%;
-    border-collapse: collapse;
+  .smallest {
+    font-weight: bold;
+    @apply text-yellow-500;
   }
-  th,
-  td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: center;
-  } */
 </style>
